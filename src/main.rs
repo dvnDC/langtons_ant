@@ -11,7 +11,7 @@ mod engine;
 
 const WINDOW_WIDTH: u32 = 1280;
 const WINDOW_HEIGHT: u32 = 720;
-const SCALE: u32 = 1;
+const SCALE: u32 = 10;
 
 const GRID_WIDTH: usize = (WINDOW_WIDTH / SCALE) as usize;
 const GRID_HEIGHT: usize = (WINDOW_HEIGHT / SCALE) as usize;
@@ -268,11 +268,15 @@ fn main() {
                 let rect = Rect::new(
                     ((x as u32 * SCALE)).try_into().unwrap(),
                     ((y as u32 * SCALE)).try_into().unwrap(),
-                    SCALE.try_into().unwrap(),
-                    SCALE.try_into().unwrap(),
+                    (SCALE - 2).try_into().unwrap(),
+                    (SCALE - 2).try_into().unwrap(),
                 );
                 let color = match grid[y][x] {
-                    Color::White => SdlColor::RGB(255, 255, 255),
+                    Color::White => {
+                        canvas.set_draw_color(SdlColor::RGB(0, 0, 0));
+                        canvas.draw_rect(rect).unwrap(); // rysuj czarne obramowanie
+                        SdlColor::RGB(255, 255, 255)
+                    },
                     Color::Black => SdlColor::RGB(0, 0, 0),
                     Color::Red => SdlColor::RGB(255, 0, 0),
                     Color::Green => COLOR_GREEN,
