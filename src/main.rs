@@ -14,7 +14,7 @@ mod engine;
 
 const WINDOW_WIDTH: u32 = 1280;
 const WINDOW_HEIGHT: u32 = 720;
-const SCALE: u32 = 100;
+const SCALE: u32 = 20;
 
 const GRID_WIDTH: usize = (WINDOW_WIDTH / SCALE) as usize;
 const GRID_HEIGHT: usize = (WINDOW_HEIGHT / SCALE) as usize;
@@ -37,9 +37,9 @@ const COLOR_GOLD: SdlColor = SdlColor::RGB(255, 215, 0);
 #[derive(Clone, Copy)]
 enum Color {
     White,
-    Black,
+    // Black,
     // Red,
-    // Green,
+    Green,
     // Blue,
     Turquoise,
     // DarkGreen,
@@ -76,9 +76,9 @@ impl Ant {
         match grid[self.y as usize][self.x as usize] {
             Color::White => {
                 self.turn_left();
-                grid[self.y as usize][self.x as usize] = Color::Black;
+                grid[self.y as usize][self.x as usize] = Color::Green;
             }
-            Color::Black => {
+            Color::Green => {
                 self.turn_right();
                 grid[self.y as usize][self.x as usize] = Color::Turquoise;
             }
@@ -157,6 +157,19 @@ fn distance_between_points(a: Point, b: Point) -> f64 {
     (dx + dy).sqrt()
 }
 
+fn intersect_points(y: i32, points: &[Point; 7]) -> (Point, Point) {
+    let mut intersections = Vec::new();
+    for i in 0..6 {
+        let p1 = points[i];
+        let p2 = points[i + 1];
+        if p1.y() <= y && p2.y() > y || p1.y() > y && p2.y() <= y {
+            let x = p1.x() + (y - p1.y()) * (p2.x() - p1.x()) / (p2.y() - p1.y());
+            intersections.push(Point::new(x, y));
+        }
+    }
+    (intersections[0], intersections[1])
+}
+
 fn draw_hexagon(
     canvas: &mut Canvas<Window>,
     x: i32,
@@ -179,18 +192,12 @@ fn draw_hexagon(
     canvas.draw_lines(points.as_ref()).unwrap();
 
     canvas.set_draw_color(fill_color);
-    for i in 0..size {
-        if i < size / 2 {
-            let start = points[0].offset(i as i32, i as i32);
-            let end = points[3].offset(-(i as i32), i as i32);
-            canvas.draw_line(start, end).unwrap();
-        } else {
-            let start = points[5].offset(i as i32, -((size - i) as i32));
-            let end = points[2].offset(-(i as i32), -((size - i) as i32));
-            canvas.draw_line(start, end).unwrap();
-        }
+    for i in (y..y + size as i32).step_by(2) {
+        let (start, end) = intersect_points(i, &points);
+        canvas.draw_line(start, end).unwrap();
     }
 }
+
 
 
 
@@ -294,12 +301,12 @@ fn main() {
 
                 let fill_color = match grid[y][x] {
                     Color::White => SdlColor::RGB(255, 255, 255),
-                    Color::Black => SdlColor::RGB(0, 0, 0),
-                    Color::Turquoise => SdlColor::RGB(64, 224, 208),
+                    Color::Turquoise => COLOR_TURQUOISE,
+                    Color::Green => COLOR_GREEN,
                     _ => SdlColor::RGB(255, 255, 255),
                 };
 
-                let border_color = SdlColor::RGB(255, 0, 0); // Set border color to black
+                let border_color = SdlColor::RGB(0, 0, 0); // Set border color to black
 
                 draw_hexagon(&mut canvas, x_pos, y_pos, SCALE, border_color, fill_color);
             }
