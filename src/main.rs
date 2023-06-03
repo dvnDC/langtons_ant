@@ -2,8 +2,10 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color as SdlColor;
 use sdl2::rect::Rect;
+use sdl2::rect::Point;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
+use std::f64;
 
 use std::convert::TryInto;
 
@@ -11,7 +13,7 @@ mod engine;
 
 const WINDOW_WIDTH: u32 = 1280;
 const WINDOW_HEIGHT: u32 = 720;
-const SCALE: u32 = 10;
+const SCALE: u32 = 20;
 
 const GRID_WIDTH: usize = (WINDOW_WIDTH / SCALE) as usize;
 const GRID_HEIGHT: usize = (WINDOW_HEIGHT / SCALE) as usize;
@@ -35,26 +37,27 @@ const COLOR_GOLD: SdlColor = SdlColor::RGB(255, 215, 0);
 enum Color {
     White,
     Black,
-    Red,
-    Green,
-    Blue,
+    // Red,
+    // Green,
+    // Blue,
     Turquoise,
-    DarkGreen,
-    Orange,
-    Purple,
-    Yellow,
-    Cyan,
-    Magenta,
-    Gray,
-    LightBlue,
-    DarkRed,
-    Gold
+    // DarkGreen,
+    // Orange,
+    // Purple,
+    // Yellow,
+    // Cyan,
+    // Magenta,
+    // Gray,
+    // LightBlue,
+    // DarkRed,
+    // Gold
 }
 
 struct Ant {
     x: isize,
     y: isize,
     direction: isize,
+    hex_direction: isize,
 }
 
 impl Ant {
@@ -66,86 +69,142 @@ impl Ant {
             x: default_x,
             y: default_y,
             direction: 0,
+            hex_direction: 0,
         }
     }
+
+    // fn move_forward(&mut self, grid: &mut Vec<Vec<Color>>) {
+    //     match grid[self.y as usize][self.x as usize] {
+    //         Color::White => {
+    //             self.turn_left();
+    //             grid[self.y as usize][self.x as usize] = Color::Black;
+    //         },
+    //         Color::Black => {
+    //             self.turn_left();
+    //             grid[self.y as usize][self.x as usize] = Color::Red;
+    //         },
+    //         Color::Red => {
+    //             self.turn_right();
+    //             grid[self.y as usize][self.x as usize] = Color::Green;
+    //         },
+    //         Color::Green => {
+    //             self.turn_right();
+    //             grid[self.y as usize][self.x as usize] = Color::Blue;
+    //         },
+    //         Color::Blue => {
+    //             self.turn_right();
+    //             grid[self.y as usize][self.x as usize] = Color::Turquoise;
+    //         },
+    //         Color::Turquoise => {
+    //             self.turn_left();
+    //             grid[self.y as usize][self.x as usize] = Color::DarkGreen;
+    //         },
+    //         Color::DarkGreen => {
+    //             self.turn_left();
+    //             grid[self.y as usize][self.x as usize] = Color::Orange;
+    //         },
+    //         Color::Orange => {
+    //             self.turn_left();
+    //             grid[self.y as usize][self.x as usize] = Color::Purple;
+    //         },
+    //         Color::Purple => {
+    //             self.turn_right();
+    //             grid[self.y as usize][self.x as usize] = Color::Yellow;
+    //         },
+    //         Color::Yellow => {
+    //             self.turn_right();
+    //             grid[self.y as usize][self.x as usize] = Color::Cyan;
+    //         },
+    //         Color::Cyan => {
+    //             self.turn_right();
+    //             grid[self.y as usize][self.x as usize] = Color::Magenta;
+    //         },
+    //         Color::Magenta => {
+    //             self.turn_left();
+    //             grid[self.y as usize][self.x as usize] = Color::Gray;
+    //         },
+    //         Color::Gray => {
+    //             self.turn_left();
+    //             grid[self.y as usize][self.x as usize] = Color::LightBlue;
+    //         },
+    //         Color::LightBlue => {
+    //             self.turn_left();
+    //             grid[self.y as usize][self.x as usize] = Color::DarkRed;
+    //         },
+    //         Color::DarkRed => {
+    //             self.turn_left();
+    //             grid[self.y as usize][self.x as usize] = Color::Gold;
+    //         },
+    //         Color::Gold => {
+    //             self.turn_left();
+    //             grid[self.y as usize][self.x as usize] = Color::White;
+    //         },
+    //     }
+    //
+    //     self.perform_movement();
+    // }
 
     fn move_forward(&mut self, grid: &mut Vec<Vec<Color>>) {
         match grid[self.y as usize][self.x as usize] {
             Color::White => {
                 self.turn_left();
                 grid[self.y as usize][self.x as usize] = Color::Black;
-            },
+            }
             Color::Black => {
-                self.turn_left();
-                grid[self.y as usize][self.x as usize] = Color::Red;
-            },
-            Color::Red => {
-                self.turn_right();
-                grid[self.y as usize][self.x as usize] = Color::Green;
-            },
-            Color::Green => {
-                self.turn_right();
-                grid[self.y as usize][self.x as usize] = Color::Blue;
-            },
-            Color::Blue => {
                 self.turn_right();
                 grid[self.y as usize][self.x as usize] = Color::Turquoise;
-            },
+            }
             Color::Turquoise => {
-                self.turn_left();
-                grid[self.y as usize][self.x as usize] = Color::DarkGreen;
-            },
-            Color::DarkGreen => {
-                self.turn_left();
-                grid[self.y as usize][self.x as usize] = Color::Orange;
-            },
-            Color::Orange => {
-                self.turn_left();
-                grid[self.y as usize][self.x as usize] = Color::Purple;
-            },
-            Color::Purple => {
                 self.turn_right();
-                grid[self.y as usize][self.x as usize] = Color::Yellow;
-            },
-            Color::Yellow => {
-                self.turn_right();
-                grid[self.y as usize][self.x as usize] = Color::Cyan;
-            },
-            Color::Cyan => {
-                self.turn_right();
-                grid[self.y as usize][self.x as usize] = Color::Magenta;
-            },
-            Color::Magenta => {
-                self.turn_left();
-                grid[self.y as usize][self.x as usize] = Color::Gray;
-            },
-            Color::Gray => {
-                self.turn_left();
-                grid[self.y as usize][self.x as usize] = Color::LightBlue;
-            },
-            Color::LightBlue => {
-                self.turn_left();
-                grid[self.y as usize][self.x as usize] = Color::DarkRed;
-            },
-            Color::DarkRed => {
-                self.turn_left();
-                grid[self.y as usize][self.x as usize] = Color::Gold;
-            },
-            Color::Gold => {
-                self.turn_left();
                 grid[self.y as usize][self.x as usize] = Color::White;
-            },
+            }
+            _ => {}
         }
 
-        self.perform_movement();
+        self.perform_hex_movement();
     }
 
-    fn turn_right(&mut self) {
+
+    fn perform_hex_movement(&mut self) {
+        match self.hex_direction {
+            0 => {
+                self.x += 1;
+                self.y -= 1;
+            } // up-right
+            1 => {
+                self.x += 1;
+            } // right
+            2 => {
+                self.y += 1;
+            } // down-right
+            3 => {
+                self.x -= 1;
+                self.y += 1;
+            } // down-left
+            4 => {
+                self.x -= 1;
+            } // left
+            5 => {
+                self.y -= 1;
+            } // up-left
+            _ => panic!("Invalid hex_direction"),
+        }
+    }
+
+    fn turn_right_rect(&mut self) {
         self.direction = (self.direction + 1) % 4;
     }
 
-    fn turn_left(&mut self) {
+    fn turn_left_rect(&mut self) {
         self.direction = (self.direction + 3) % 4;
+    }
+
+    fn turn_right(&mut self) {
+        self.hex_direction = (self.hex_direction + 1) % 6;
+    }
+
+    fn turn_left(&mut self) {
+        self.hex_direction = (self.hex_direction + 5) % 6;
     }
 
     fn perform_movement(&mut self) {
@@ -168,6 +227,41 @@ impl Ant {
     }
 }
 
+// Euclidean distance formula
+// distance = sqrt((x2 - x1)^2 + (y2 - y1)^2)
+
+fn distance_between_points(a: Point, b: Point) -> f64 {
+    let dx = (a.x() - b.x()).pow(2) as f64;
+    let dy = (a.y() - b.y()).pow(2) as f64;
+    (dx + dy).sqrt()
+}
+
+fn draw_hexagon(canvas: &mut Canvas<Window>, x: i32, y: i32, size: u32, color: SdlColor) {
+    let points = [
+        Point::new(x, y + size as i32 / 2),
+        Point::new(x + size as i32 / 2, y),
+        Point::new(x + size as i32 * 3 / 2, y),
+        Point::new(x + size as i32 * 2, y + size as i32 / 2),
+        Point::new(x + size as i32 * 3 / 2, y + size as i32),
+        Point::new(x + size as i32 / 2, y + size as i32),
+        Point::new(x, y + size as i32 / 2),
+    ];
+
+    canvas.set_draw_color(color);
+    canvas.draw_lines(points.as_ref()).unwrap();
+
+    // Fill the hexagon manually (you can optimize this)
+    for i in (x - size as i32)..(x + size as i32 * 2) {
+        for j in (y - size as i32)..(y + size as i32) {
+            let point = Point::new(i, j);
+            if points.iter().all(|&p| distance_between_points(point, p) < size as f64) {
+                canvas.draw_point(point).unwrap();
+            }
+        }
+    }
+}
+
+
 fn main() {
     // engine::menu::Menu::print_menu();
     //todo: delete me later
@@ -185,13 +279,11 @@ fn main() {
     let mut freeze = false;
     let mut speed = 1;
 
-    let mut grid = vec![vec![Color::White; GRID_WIDTH]; GRID_HEIGHT];
+    let mut grid = vec![vec![Color::Turquoise; GRID_WIDTH]; GRID_HEIGHT];
 
     let mut ants = vec![];
 
-    for _ in 0..8 {
-        ants.push(Ant::new(Some(GRID_WIDTH as isize / 2), Some(GRID_HEIGHT as isize / 2)));
-    }
+    ants.push(Ant::new(Some(GRID_WIDTH as isize / 2), Some(GRID_HEIGHT as isize / 2)));
 
     let mut step = 0;
     'main_loop: loop {
@@ -247,7 +339,6 @@ fn main() {
                 _ => {}
             }
         }
-
         if !freeze {
             for _ in 0..speed {
                 step += 1;
@@ -263,41 +354,68 @@ fn main() {
         canvas.set_draw_color(SdlColor::RGB(0, 0, 0));
         canvas.clear();
 
+        // for x in 0..GRID_WIDTH {
+        //     for y in 0..GRID_HEIGHT {
+        //         let rect = Rect::new(
+        //             ((x as u32 * SCALE)).try_into().unwrap(),
+        //             ((y as u32 * SCALE)).try_into().unwrap(),
+        //             (SCALE - 2).try_into().unwrap(),
+        //             (SCALE - 2).try_into().unwrap(),
+        //         );
+        //         let color = match grid[y][x] {
+        //             Color::White => SdlColor::RGB(255, 255, 255),
+        //             Color::Black => SdlColor::RGB(0, 0, 0),
+        // Color::Red => SdlColor::RGB(255, 0, 0),
+        // Color::Green => COLOR_GREEN,
+        // Color::Blue => COLOR_BLUE,
+        // Color::Turquoise => COLOR_TURQUOISE,
+        // Color::DarkGreen => COLOR_DARK_GREEN,
+        // Color::Orange => COLOR_ORANGE,
+        // Color::Purple => COLOR_PURPLE,
+        // Color::Yellow => COLOR_YELLOW,
+        // Color::Cyan => COLOR_CYAN,
+        // Color::Magenta => COLOR_MAGENTA,
+        // Color::Gray => COLOR_GRAY,
+        // Color::LightBlue => COLOR_LIGHT_BLUE,
+        // Color::DarkRed => COLOR_DARK_RED,
+        // Color::Gold => COLOR_GOLD,
+        // };
+        // canvas.set_draw_color(color);
+        // canvas.fill_rect(rect).unwrap();
+        // );
+
+        //     }
+        // }
+
         for x in 0..GRID_WIDTH {
             for y in 0..GRID_HEIGHT {
-                let rect = Rect::new(
-                    ((x as u32 * SCALE)).try_into().unwrap(),
-                    ((y as u32 * SCALE)).try_into().unwrap(),
-                    (SCALE - 2).try_into().unwrap(),
-                    (SCALE - 2).try_into().unwrap(),
-                );
-                let color = match grid[y][x] {
-                    Color::White => {
-                        canvas.set_draw_color(SdlColor::RGB(0, 0, 0));
-                        canvas.draw_rect(rect).unwrap(); // rysuj czarne obramowanie
-                        SdlColor::RGB(255, 255, 255)
-                    },
-                    Color::Black => SdlColor::RGB(0, 0, 0),
-                    Color::Red => SdlColor::RGB(255, 0, 0),
-                    Color::Green => COLOR_GREEN,
-                    Color::Blue => COLOR_BLUE,
-                    Color::Turquoise => COLOR_TURQUOISE,
-                    Color::DarkGreen => COLOR_DARK_GREEN,
-                    Color::Orange => COLOR_ORANGE,
-                    Color::Purple => COLOR_PURPLE,
-                    Color::Yellow => COLOR_YELLOW,
-                    Color::Cyan => COLOR_CYAN,
-                    Color::Magenta => COLOR_MAGENTA,
-                    Color::Gray => COLOR_GRAY,
-                    Color::LightBlue => COLOR_LIGHT_BLUE,
-                    Color::DarkRed => COLOR_DARK_RED,
-                    Color::Gold => COLOR_GOLD,
+                let x_pos = (x as u32 * SCALE * 3 / 2).try_into().unwrap();
+                let y_pos = (y as u32 * SCALE + (x as u32 % 2) * SCALE / 2).try_into().unwrap();
 
+                let color = match grid[y][x] {
+                    Color::White => SdlColor::RGB(255, 255, 255),
+                    Color::Black => SdlColor::RGB(0, 0, 0),
+                    Color::Turquoise => SdlColor::RGB(64, 224, 208),
+                    _ => SdlColor::RGB(255, 255, 255)
                 };
-                canvas.set_draw_color(color);
-                canvas.fill_rect(rect).unwrap();
+
+                draw_hexagon(&mut canvas, x_pos, y_pos, SCALE, color);
             }
         }
+
+
+        // for ant in &ants {
+        //     let x = (ant.x * SCALE as isize + (ant.y % 2) * SCALE as isize / 2).try_into().unwrap();
+        //     let y = (ant.y * SCALE as isize * 3 / 4).try_into().unwrap();
+        //
+        //     draw_hexagon( & mut canvas,
+        //     x,
+        //     y,
+        //     SCALE,
+        //     SdlColor::RGB(255,
+        //     0,
+        //     0));
+        // }
 
         canvas.present();
 
