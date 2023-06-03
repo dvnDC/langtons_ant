@@ -14,11 +14,14 @@ mod engine;
 
 const WINDOW_WIDTH: u32 = 1280;
 const WINDOW_HEIGHT: u32 = 720;
-const SCALE: u32 = 20;
+const SCALE: u32 = 10;
 
 const GRID_WIDTH: usize = (WINDOW_WIDTH / SCALE) as usize;
 const GRID_HEIGHT: usize = (WINDOW_HEIGHT / SCALE) as usize;
 
+const COLOR_WHITE: SdlColor = SdlColor::RGB(255, 255, 255);
+const COLOR_BLACK: SdlColor = SdlColor::RGB(0, 0, 0);
+const COLOR_RED: SdlColor = SdlColor::RGB(255, 0, 0);
 const COLOR_GREEN: SdlColor = SdlColor::RGB(0, 255, 0);
 const COLOR_BLUE: SdlColor = SdlColor::RGB(0, 0, 255);
 const COLOR_TURQUOISE: SdlColor = SdlColor::RGB(64, 224, 208);
@@ -33,25 +36,34 @@ const COLOR_LIGHT_BLUE: SdlColor = SdlColor::RGB(173, 216, 230);
 const COLOR_DARK_RED: SdlColor = SdlColor::RGB(139, 0, 0);
 const COLOR_GOLD: SdlColor = SdlColor::RGB(255, 215, 0);
 
+#[derive(Clone, Copy)]
+enum Rotation {
+    N, // No change
+    R1, // 60° clockwise
+    R2, // 120° clockwise
+    U, // 180°
+    L2, // 120° counter-clockwise
+    L1, // 60° counter-clockwise
+}
 
 #[derive(Clone, Copy)]
 enum Color {
     White,
-    // Black,
-    // Red,
+    Black,
+    Red,
     Green,
-    // Blue,
+    Blue,
     Turquoise,
-    // DarkGreen,
-    // Orange,
-    // Purple,
-    // Yellow,
-    // Cyan,
-    // Magenta,
-    // Gray,
-    // LightBlue,
-    // DarkRed,
-    // Gold
+    DarkGreen,
+    Orange,
+    Purple,
+    Yellow,
+    Cyan,
+    Magenta,
+    Gray,
+    LightBlue,
+    DarkRed,
+    Gold
 }
 
 struct Ant {
@@ -74,69 +86,106 @@ impl Ant {
 
     fn move_forward(&mut self, grid: &mut Vec<Vec<Color>>) {
         match grid[self.y as usize][self.x as usize] {
-            Color::White => {
-                self.turn_left();
-                grid[self.y as usize][self.x as usize] = Color::Green;
+            Color::Black => {
+                self.rotate(Rotation::L1);
+                grid[self.y as usize][self.x as usize] = Color::Blue;
             }
-            Color::Green => {
-                self.turn_right();
+            Color::Blue => {
+                self.rotate(Rotation::L2);
                 grid[self.y as usize][self.x as usize] = Color::Turquoise;
             }
             Color::Turquoise => {
-                self.turn_right();
-                grid[self.y as usize][self.x as usize] = Color::White;
+                self.rotate(Rotation::N);
+                grid[self.y as usize][self.x as usize] = Color::DarkGreen;
+            }
+            Color::DarkGreen => {
+                self.rotate(Rotation::U);
+                grid[self.y as usize][self.x as usize] = Color::Cyan;
+            }
+            Color::Cyan => {
+                self.rotate(Rotation::L2);
+                grid[self.y as usize][self.x as usize] = Color::LightBlue;
+            }
+            Color::LightBlue => {
+                self.rotate(Rotation::L1);
+                grid[self.y as usize][self.x as usize] = Color::Red;
+            }
+            Color::Red => {
+                self.rotate(Rotation::R2);
+                grid[self.y as usize][self.x as usize] = Color::Black;
             }
             _ => {}
         }
 
         self.perform_hex_movement();
+        println!("Ant position: ({}, {}), hex_direction: {}", self.x, self.y, self.hex_direction);
     }
 
-
-
     fn perform_hex_movement(&mut self) {
+        let is_even_col = self.x % 2 == 0;
         match self.hex_direction {
             0 => {
-                if self.x % 2 == 0 {
-                    self.y -= 1;
-                }
                 self.x += 1;
             }
             1 => {
-                self.y += 1;
+                if is_even_col {
+                    self.y += 1;
+                } else {
+                    self.x += 1;
+                    self.y += 1;
+                }
             }
             2 => {
-                if self.x % 2 == 1 {
-                    self.y += 1;
+                if is_even_col {
+                    self.y -= 1;
+                } else {
+                    self.x += 1;
+                    self.y -= 1;
                 }
-                self.x += 1;
             }
             3 => {
-                if self.x % 2 == 1 {
-                    self.y += 1;
-                }
                 self.x -= 1;
             }
             4 => {
-                self.y -= 1;
-            }
-            5 => {
-                if self.x % 2 == 0 {
+                if is_even_col {
+                    self.y -= 1;
+                } else {
+                    self.x -= 1;
                     self.y -= 1;
                 }
-                self.x -= 1;
+            }
+            5 => {
+                if is_even_col {
+                    self.y += 1;
+                } else {
+                    self.x -= 1;
+                    self.y += 1;
+                }
             }
             _ => panic!("Invalid hex_direction"),
         }
     }
 
 
-    fn turn_right(&mut self) {
-        self.hex_direction = (self.hex_direction + 1) % 6;
-    }
-
-    fn turn_left(&mut self) {
-        self.hex_direction = (self.hex_direction + 5) % 6;
+    fn rotate(&mut self, rotation: Rotation) {
+        match rotation {
+            Rotation::N => {}
+            Rotation::R1 => {
+                self.hex_direction = (self.hex_direction + 1) % 6;
+            }
+            Rotation::R2 => {
+                self.hex_direction = (self.hex_direction + 2) % 6;
+            }
+            Rotation::U => {
+                self.hex_direction = (self.hex_direction + 3) % 6;
+            }
+            Rotation::L2 => {
+                self.hex_direction = (self.hex_direction + 4) % 6;
+            }
+            Rotation::L1 => {
+                self.hex_direction = (self.hex_direction + 5) % 6;
+            }
+        }
     }
 
     fn out_of_bounds(&self) -> bool {
@@ -192,7 +241,7 @@ fn draw_hexagon(
     canvas.draw_lines(points.as_ref()).unwrap();
 
     canvas.set_draw_color(fill_color);
-    for i in (y..y + size as i32).step_by(2) {
+    for i in y..y + size as i32 {
         let (start, end) = intersect_points(i, &points);
         canvas.draw_line(start, end).unwrap();
     }
@@ -219,7 +268,7 @@ fn main() {
     let mut freeze = true;
     let mut speed = 1;
 
-    let mut grid = vec![vec![Color::Turquoise; GRID_WIDTH]; GRID_HEIGHT];
+    let mut grid = vec![vec![Color::Black; GRID_WIDTH]; GRID_HEIGHT];
 
     let mut ants = vec![];
 
@@ -244,7 +293,7 @@ fn main() {
                     keycode: Some(Keycode::Up),
                     ..
                 } => {
-                    speed += 200;
+                    speed += 1;
                     println!("SPEED: {}", speed);
                 }
                 Event::KeyDown {
@@ -252,7 +301,7 @@ fn main() {
                     ..
                 } => {
                     if speed > 1 {
-                        speed -= 200;
+                        speed -= 1;
                         println!("SPEED: {}", speed);
                     }
                 }
@@ -267,7 +316,7 @@ fn main() {
                     keycode: Some(Keycode::T),
                     ..
                 } => {
-                    speed = 200000;
+                    speed = 50;
                     println!("SPEED: {}", speed);
                 }
                 Event::KeyDown {
@@ -300,9 +349,13 @@ fn main() {
                 let y_pos = (y as u32 * SCALE + (x as u32 % 2) * SCALE / 2).try_into().unwrap();
 
                 let fill_color = match grid[y][x] {
-                    Color::White => SdlColor::RGB(255, 255, 255),
+                    Color::Black => COLOR_BLACK,
+                    Color::Red => COLOR_RED,
                     Color::Turquoise => COLOR_TURQUOISE,
-                    Color::Green => COLOR_GREEN,
+                    Color::Blue => COLOR_BLUE,
+                    Color::DarkGreen => COLOR_DARK_GREEN,
+                    Color::Cyan => COLOR_CYAN,
+                    Color::LightBlue => COLOR_LIGHT_BLUE,
                     _ => SdlColor::RGB(255, 255, 255),
                 };
 
