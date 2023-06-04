@@ -30,7 +30,7 @@ impl Ant {
             Color::DarkGreen => (Color::Cyan, Rotation::L2),
             Color::Cyan => (Color::LightBlue, Rotation::L1),
             Color::LightBlue => (Color::Black, Rotation::R2),
-            _ => (Color::Black, Rotation::N), // Default case, if needed
+            _ => (Color::Black, Rotation::N),
         };
 
         self.rotate(rotation);

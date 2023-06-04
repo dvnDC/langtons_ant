@@ -24,8 +24,7 @@ use crate::config::*;
 
 
 fn main() {
-    // engine::menu::Menu::print_menu();
-    //todo: delete me later
+    // menu::Menu::print_menu(); //todo: fix me before using
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
 
@@ -39,6 +38,7 @@ fn main() {
 
     let mut freeze = true;
     let mut speed = 1;
+    let mut sleep_duration = 100;
 
     let mut grid = vec![vec![Color::Black; GRID_WIDTH]; GRID_HEIGHT];
 
@@ -65,16 +65,20 @@ fn main() {
                     keycode: Some(Keycode::Up),
                     ..
                 } => {
-                    speed += 1;
-                    println!("SPEED: {}", speed);
+                    sleep_duration += 10;
+                    println!("Delay between moves: {} ms", sleep_duration);
                 }
                 Event::KeyDown {
                     keycode: Some(Keycode::Down),
                     ..
                 } => {
-                    if speed > 1 {
-                        speed -= 1;
-                        println!("SPEED: {}", speed);
+                    if sleep_duration > 10 {
+                        sleep_duration -= 10;
+                        println!("Delay between moves: {} ms", sleep_duration);
+                    }
+                    else if sleep_duration == 10 {
+                        sleep_duration = 1;
+                        println!("Delay between moves: {} ms", sleep_duration);
                     }
                 }
                 Event::KeyDown {
@@ -82,6 +86,7 @@ fn main() {
                     ..
                 } => {
                     speed = 1;
+                    sleep_duration = 100;
                     println!("SPEED: {}", speed);
                 }
                 Event::KeyDown {
@@ -131,17 +136,17 @@ fn main() {
                     _ => COLOR_WHITE,
                 };
 
-                let border_color = COLOR_BLACK; // Set border color to black
+                let border_color = COLOR_BLACK;
 
                 draw_hexagon(&mut canvas, x_pos, y_pos, SCALE, border_color, fill_color);
             }
         }
         for ant in &ants {
-            draw_ant(&mut canvas, ant, SCALE, COLOR_YELLOW); // Use a distinct color for the ant, e.g., yellow
+            draw_ant(&mut canvas, ant, SCALE, COLOR_YELLOW);
         }
 
         canvas.present();
 
-        std::thread::sleep(std::time::Duration::from_millis(300));
+        std::thread::sleep(std::time::Duration::from_millis(sleep_duration));
     }
 }
