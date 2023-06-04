@@ -12,12 +12,15 @@ use std::convert::TryInto;
 
 mod engine;
 
-const WINDOW_WIDTH: u32 = 1280;
-const WINDOW_HEIGHT: u32 = 720;
 const SCALE: u32 = 10;
+const HEXAGONS_HORIZONTAL: u32 = 100;
+const HEXAGONS_VERTICAL: u32 = 80;
 
-const GRID_WIDTH: usize = (WINDOW_WIDTH / SCALE) as usize;
-const GRID_HEIGHT: usize = (WINDOW_HEIGHT / SCALE) as usize;
+const WINDOW_WIDTH: u32 = HEXAGONS_HORIZONTAL * SCALE * 3 / 2;
+const WINDOW_HEIGHT: u32 = HEXAGONS_VERTICAL * SCALE;
+
+const GRID_WIDTH: usize = HEXAGONS_HORIZONTAL as usize;
+const GRID_HEIGHT: usize = HEXAGONS_VERTICAL as usize;
 
 const COLOR_WHITE: SdlColor = SdlColor::RGB(255, 255, 255);
 const COLOR_BLACK: SdlColor = SdlColor::RGB(0, 0, 0);
