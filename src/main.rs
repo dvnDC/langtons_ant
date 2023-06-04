@@ -85,41 +85,25 @@ impl Ant {
     }
 
     fn move_forward(&mut self, grid: &mut Vec<Vec<Color>>) {
-        match grid[self.y as usize][self.x as usize] {
-            Color::Black => {
-                self.rotate(Rotation::L1);
-                grid[self.y as usize][self.x as usize] = Color::Blue;
-            }
-            Color::Blue => {
-                self.rotate(Rotation::L2);
-                grid[self.y as usize][self.x as usize] = Color::Turquoise;
-            }
-            Color::Turquoise => {
-                self.rotate(Rotation::N);
-                grid[self.y as usize][self.x as usize] = Color::DarkGreen;
-            }
-            Color::DarkGreen => {
-                self.rotate(Rotation::U);
-                grid[self.y as usize][self.x as usize] = Color::Cyan;
-            }
-            Color::Cyan => {
-                self.rotate(Rotation::L2);
-                grid[self.y as usize][self.x as usize] = Color::LightBlue;
-            }
-            Color::LightBlue => {
-                self.rotate(Rotation::L1);
-                grid[self.y as usize][self.x as usize] = Color::Red;
-            }
-            Color::Red => {
-                self.rotate(Rotation::R2);
-                grid[self.y as usize][self.x as usize] = Color::Black;
-            }
-            _ => {}
-        }
+        let current_color = grid[self.y as usize][self.x as usize];
+        let (next_color, rotation) = match current_color {
+            Color::Black => (Color::Red, Rotation::L1),
+            Color::Red => (Color::Turquoise, Rotation::L2),
+            Color::Turquoise => (Color::Blue, Rotation::N),
+            Color::Blue => (Color::DarkGreen, Rotation::U),
+            Color::DarkGreen => (Color::Cyan, Rotation::L2),
+            Color::Cyan => (Color::LightBlue, Rotation::L1),
+            Color::LightBlue => (Color::Black, Rotation::R2),
+            _ => (Color::Black, Rotation::N), // Default case, if needed
+        };
 
+        self.rotate(rotation);
+        grid[self.y as usize][self.x as usize] = next_color;
         self.perform_hex_movement();
+
         println!("Ant position: ({}, {}), hex_direction: {}", self.x, self.y, self.hex_direction);
     }
+
 
     fn perform_hex_movement(&mut self) {
         let is_even_col = self.x % 2 == 0;
@@ -247,8 +231,19 @@ fn draw_hexagon(
     }
 }
 
+fn draw_ant(
+    canvas: &mut Canvas<Window>,
+    ant: &Ant,
+    size: u32,
+    color: SdlColor,
+) {
+    let x = ant.x as u32;
+    let y = ant.y as u32;
+    let x_pos = (x * size * 3 / 2).try_into().unwrap();
+    let y_pos = (y * size + (x % 2) * size / 2).try_into().unwrap();
 
-
+    draw_hexagon(canvas, x_pos, y_pos, size, color, color);
+}
 
 
 fn main() {
@@ -364,7 +359,9 @@ fn main() {
                 draw_hexagon(&mut canvas, x_pos, y_pos, SCALE, border_color, fill_color);
             }
         }
-
+        for ant in &ants {
+            draw_ant(&mut canvas, ant, SCALE, COLOR_YELLOW); // Use a distinct color for the ant, e.g., yellow
+        }
 
         canvas.present();
 
