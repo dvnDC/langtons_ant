@@ -6,10 +6,11 @@ impl Menu {
     pub fn print_menu() {
         Self::clear_terminal();
         println!("Langton's Ant");
-        println!("1. Display task list");
-        println!("2. Add new task");
-        println!("3. Mark task as completed");
-        println!("4. Exit");
+        println!("Resolution: XxX, Hexagons: 40, Ants: 1, Rotation: L1L1R1R2NU");
+        println!("1. Add/remove Ants");
+        println!("2. Change rotation");
+        println!("4. Set map size");
+        println!("5. Exit\n");
         Self::handle_choice();
     }
 
@@ -30,6 +31,9 @@ impl Menu {
                 Self::exit_program_from_input();
             }
             Ok(4) => {
+                Self::exit_program_from_input();
+            }
+            Ok(5) => {
                 Self::exit_program_from_input();
             }
             _ => {

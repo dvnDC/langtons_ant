@@ -39,14 +39,13 @@ fn main() {
     let mut freeze = true;
     let mut speed = 1;
     let mut sleep_duration = 100;
+    let mut step = 0;
 
     let mut grid = vec![vec![Color::Black; GRID_WIDTH]; GRID_HEIGHT];
 
     let mut ants = vec![];
-
     ants.push(Ant::new(Some(GRID_WIDTH as isize / 2), Some(GRID_HEIGHT as isize / 2)));
 
-    let mut step = 0;
     'main_loop: loop {
         for event in sdl_context.event_pump().unwrap().poll_iter() {
             match event {
@@ -119,6 +118,7 @@ fn main() {
 
         canvas.set_draw_color(COLOR_BLACK);
         canvas.clear();
+
 
         for x in 0..GRID_WIDTH {
             for y in 0..GRID_HEIGHT {
