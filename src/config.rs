@@ -7,14 +7,14 @@
 
     Close-up view settings
     Resolution: 1665x740
-    pub const SCALE: u32 = 37;
+    pub const SCALE: u32 = 5;
     pub const HEXAGONS_HORIZONTAL: u32 = 30;
     pub const HEXAGONS_VERTICAL: u32 = 25;
  */
 
-pub const SCALE: u32 = 37;
-pub const HEXAGONS_HORIZONTAL: u32 = 30;
-pub const HEXAGONS_VERTICAL: u32 = 20;
+pub const SCALE: u32 = 5;
+pub const HEXAGONS_HORIZONTAL: u32 = 200;
+pub const HEXAGONS_VERTICAL: u32 = 200;
 
 pub const WINDOW_WIDTH: u32 = HEXAGONS_HORIZONTAL * SCALE * 3 / 2;
 pub const WINDOW_HEIGHT: u32 = HEXAGONS_VERTICAL * SCALE;
