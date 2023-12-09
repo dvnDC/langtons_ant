@@ -212,7 +212,7 @@ fn main() {
                     keycode: Some(Keycode::Up),
                     ..
                 } => {
-                    speed += 200;
+                    speed += 2000;
                     println!("SPEED: {}", speed);
                 }
                 Event::KeyDown {
@@ -220,7 +220,7 @@ fn main() {
                     ..
                 } => {
                     if speed > 1 {
-                        speed -= 200;
+                        speed -= 2000;
                         println!("SPEED: {}", speed);
                     }
                 }
@@ -235,7 +235,7 @@ fn main() {
                     keycode: Some(Keycode::T),
                     ..
                 } => {
-                    speed = 200000;
+                    speed = 50000;
                     println!("SPEED: {}", speed);
                 }
                 Event::KeyDown {
